@@ -1,6 +1,6 @@
 from classes.Game import Game
 
-
+# Função principal do jogo
 def main():
     game = Game()
     game.run()

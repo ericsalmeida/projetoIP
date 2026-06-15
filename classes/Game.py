@@ -1,5 +1,6 @@
 import pygame
 import sys
+from classes.PacIp import PacIp
 
 class Game:
     def __init__(self):
@@ -18,6 +19,12 @@ class Game:
 
         self.running = True
 
+        # Cria do PacIp
+        self.pacip = PacIp(
+            x=self.width // 2,
+            y=self.height // 2
+        )
+
     def run(self):
 
         while self.running:
@@ -27,7 +34,21 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
+                elif event.type == pygame.KEYDOWN:
+
+                    self.pacip.definir_direcao(
+                        event.key
+                    )
+
+            # Atualiza o personagem na tela
+            self.pacip.mover()
+
+            # Desenha a tela do jogo
             self.screen.fill((0, 0, 0))
+
+            self.pacip.desenhar(
+                self.screen
+            )
 
             pygame.display.flip()
 
