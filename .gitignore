@@ -1,0 +1,21 @@
+# Ambiente virtual
+venv/
+
+# Arquivos compilados do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arquivos gerados por ferramentas
+build/
+dist/
+*.spec
+
+# Configurações do VS Code
+.vscode/
+
+# Configurações do PyCharm
+.idea/
+
+# Arquivos do macOS
+.DS_Store
