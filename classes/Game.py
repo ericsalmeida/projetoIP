@@ -1,29 +1,32 @@
 import pygame
 import sys
 from classes.PacIp import PacIp
+from classes.Map import Map
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK
 
 class Game:
     def __init__(self):
         pygame.init()
 
-        self.width = 800
-        self.height = 600
+        # COnfiguracao da musica do jogo
+        pygame.mixer.init()
+        pygame.mixer.music.load("assets/sounds/music.mp3")
+        pygame.mixer.music.play()
+        pygame.mixer.music.set_volume(0.2) # Volume aqui vavi de 0 a 1. deixei em 0.2 para ficar agradável
+        pygame.mixer.music.play(-1) # Funcao p manter a música em um loop infinito, repetindo a música quantas vezes forem preciso
 
-        self.screen = pygame.display.set_mode(
-            (self.width, self.height)
-        )
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
         pygame.display.set_caption("PacIp")
 
         self.clock = pygame.time.Clock()
 
         self.running = True
+        # Inicializa o mapa estruturado
+        self.mapa = Map()
 
         # Cria do PacIp
-        self.pacip = PacIp(
-            x=self.width // 2,
-            y=self.height // 2
-        )
+        self.pacip = PacIp(x=364, y=324)
 
     def run(self):
 
@@ -41,18 +44,17 @@ class Game:
                     )
 
             # Atualiza o personagem na tela
-            self.pacip.mover()
+            self.pacip.mover(self.mapa.walls)  # o parâmetro passado é a lista das paredes do mapa
 
             # Desenha a tela do jogo
-            self.screen.fill((0, 0, 0))
+            self.screen.fill(BLACK)
 
-            self.pacip.desenhar(
-                self.screen
-            )
+            self.mapa.draw(self.screen)  # Desenha o labirinto 
+            self.pacip.desenhar(self.screen) # Desenha o PacIp dentro do labrinto
 
             pygame.display.flip()
 
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
         pygame.quit()
 

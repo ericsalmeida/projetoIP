@@ -1,5 +1,5 @@
 import pygame
-
+from constants import YELLOW
 
 class PacIp:
     def __init__(self, x, y, tamanho=32, velocidade=4):
@@ -26,7 +26,7 @@ class PacIp:
         self.keys_collected = [] # Armazenamento das chaves especiais que foram coletadas
 
         # Representação inicial do personagem: círculo amarelo no mapa
-        self.color = (255, 255, 0)
+        self.color = YELLOW 
 
     #  Método que define a direção do PacIp
     def definir_direcao(self, key):
@@ -42,13 +42,24 @@ class PacIp:
 
         elif key == pygame.K_RIGHT:
             self.direction = (1, 0)
-
-    # Função que faz o PacIp se mover nas suas coordenadas X e Y
-    def mover(self):
-
+    def mover(self, walls):
+        # PacIp tenta mover no eixo X --> isso é, na direcao horizontal
         self.rect.x += self.direction[0] * self.speed
+        for wall in walls:
+            if self.rect.colliderect(wall):
+                # Se colidiu, desfaz o passo no eixo X e faz o PacIp parar totalmente
+                self.rect.x -= self.direction[0] * self.speed
+                self.direction = (0, 0)
+                break
 
+        # PacIp tenta mover no eixo Y --> isso é, na direcao vevrtical
         self.rect.y += self.direction[1] * self.speed
+        for wall in walls:
+            if self.rect.colliderect(wall):
+                # Se colidiu, desfaz o passo no eixo Y e faz o PacIp parar totalmente
+                self.rect.y -= self.direction[1] * self.speed
+                self.direction = (0, 0)
+                break
 
     # Função que desenha o PacIp na tela
     def desenhar(self, tela):
