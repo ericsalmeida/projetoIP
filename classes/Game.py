@@ -2,6 +2,7 @@ import pygame
 import sys
 from classes.PacIp import PacIp
 from classes.Map import Map
+from classes.Coin import generate_coins, update_coin_collisions, floating_texts
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK
 
 class Game:
@@ -28,6 +29,9 @@ class Game:
         # Cria do PacIp
         self.pacip = PacIp(x=364, y=324)
 
+        # Gera as moedas no mapa
+        self.coins = generate_coins(self.mapa.matrix)
+
     def run(self):
 
         while self.running:
@@ -46,11 +50,18 @@ class Game:
             # Atualiza o personagem na tela
             self.pacip.mover(self.mapa.walls)  # o parâmetro passado é a lista das paredes do mapa
 
+            update_coin_collisions(self.pacip, self.coins) # Detecta colisão
+            self.coins.update()                            # Faz a espada flutuar e sanduíches piscarem
+            floating_texts.update()      
+
             # Desenha a tela do jogo
             self.screen.fill(BLACK)
 
             self.mapa.draw(self.screen)  # Desenha o labirinto 
             self.pacip.desenhar(self.screen) # Desenha o PacIp dentro do labrinto
+            self.coins.draw(self.screen)  # Desenha as moedas
+            
+            floating_texts.draw(self.screen) 
 
             pygame.display.flip()
 
