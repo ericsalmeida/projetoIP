@@ -1,7 +1,6 @@
 import pygame
 from constants import SWORD_BLADE, SWORD_GUARD, SWORD_EYE, SWORD_PUPIL, SWORD_HILT, SWORD_SKULL
-from classes.Coin import FloatingText, floating_texts
-
+from classes.FloatingText import FloatingText, floating_texts
 
 # Essa classe representa a espada especial do jogo.
 class Key(pygame.sprite.Sprite):
@@ -60,7 +59,7 @@ class Key(pygame.sprite.Sprite):
         pygame.draw.rect(self.image, SWORD_SKULL, (22, 10, 2, 4))
 
     def update(self):
-        # A espada ainda nao tem animacao.
+        #animação
         pass
 
     def desenhar(self, tela):

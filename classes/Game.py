@@ -3,9 +3,8 @@ import sys
 from classes.PacIp import PacIp
 from classes.Map import Map
 from classes.Ghost import Ghost
-from classes.Coin import generate_coins, update_coin_collisions
-from classes.Key import create_keys, update_key_collisions
 from classes.FloatingText import floating_texts
+from classes.Key import Key 
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK
 
 # Classe principal que controla o jogo inteiro
@@ -35,16 +34,8 @@ class Game:
         self.pacip = PacIp(x=364, y=324)
         self.ghost_teste = Ghost(x=364, y=100)
 
-        # Cria todas as moedas normais do mapa.
-        self.coins = generate_coins(self.mapa.matrix)
-
-        # Cria as 4 espadas especiais do jogo
-        self.keys = create_keys([
-            (60, 60),
-            (740, 60),
-            (60, 540),
-            (740, 540),
-        ])
+        # a partir do método interno dele.
+        self.coins, self.keys = self.mapa.generate_items()
 
         # Guarda futuramente os ids dos fantasmas ligados a cada espada.
         self.pending_ghost_ids = []
@@ -67,18 +58,22 @@ class Game:
             self.ghost_teste.mover(self.mapa.walls)
 
             # Verifica se o PacIp encostou em alguma moeda.
-            points_earned = update_coin_collisions(self.pacip, self.coins)
-            self.pacip.score += points_earned
+            coin_hits = pygame.sprite.spritecollide(self.pacip, self.coins, True)
+            for coin in coin_hits:
+                #Dispara os pontos e o texto flutuante da moeda coletada
+                coin.on_collide(self.pacip) 
+                self.pacip.score += coin.points
 
             # Verifica se o PacIp encostou em alguma espada.
-            key_points, collected_key_ids, linked_ghost_ids = update_key_collisions(self.pacip, self.keys)
-            self.pacip.score += key_points
-
-            # Guarda quais espadas ja foram coletadas.
-            self.pacip.keys_collected.extend(collected_key_ids)
-
-            # Guarda os ids dos fantasmas que depois vao ser ligados.
-            self.pending_ghost_ids.extend(linked_ghost_ids)
+            key_hits = pygame.sprite.spritecollide(self.pacip, self.keys, True)
+            for key in key_hits:
+                # Dispara os pontos e o texto flutuante da espada coletada
+                key.on_collect(self.pacip)
+                
+                self.pacip.score += key.points
+                self.pacip.keys_collected.append(key.key_id)
+                if key.linked_ghost_id is not None:
+                    self.pending_ghost_ids.append(key.linked_ghost_id)
 
             # Atualiza a animacao das moedas, das espadas e dos textos flutuantes.
             self.coins.update()
