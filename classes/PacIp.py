@@ -28,6 +28,12 @@ class PacIp:
         # Representação inicial do personagem: círculo amarelo no mapa
         self.color = YELLOW 
 
+        # Atributos relacionados as moedas
+        self.total_coins = 0        # total de moedas de moedas que tem no mapa (os hamburguer)
+        self.half_life_given = False  # Registro se já deu a vida pela metade dos hamburguer coletados
+        self.full_life_given = False  # Registro se já deu a vida por todos os hamburguer coletados
+        self.coins_eaten = 0          # registro de quantas moedas já foram comidas pelo pacip
+
     #  Método que define a direção do PacIp
     def definir_direcao(self, key):
 
@@ -70,3 +76,16 @@ class PacIp:
             self.rect.center,
             self.rect.width // 2
         )
+
+    # Função para vida extra
+    def verificar_vida_extra(self):
+        if self.total_coins == 0:
+            return
+        # Verifica se o pacip comeu mais das metades ou a metade das moedas e dá mais uma vida apenas uma vez por essa condicao
+        if not self.half_life_given and self.coins_eaten >= self.total_coins // 2:
+            self.lives += 1
+            self.half_life_given = True
+        # Verifica se o pacip comeu todas as moedas e dá mais uma vida apenas uma vez por essa condicao
+        if not self.full_life_given and self.coins_eaten >= self.total_coins:
+            self.lives += 1
+            self.full_life_given = True

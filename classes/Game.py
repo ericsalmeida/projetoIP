@@ -5,7 +5,7 @@ from classes.Map import Map
 from classes.Ghost import Ghost
 from classes.FloatingText import floating_texts
 from classes.Key import Key 
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK, WHITE
 
 # Classe principal que controla o jogo inteiro
 class Game:
@@ -40,6 +40,20 @@ class Game:
         # Guarda futuramente os ids dos fantasmas ligados a cada espada.
         self.pending_ghost_ids = []
 
+        # Envia a qtd total de hamburguer no mapa para a classe do pacio
+        self.pacip.total_coins = len(self.coins)  
+
+        # Define a fonte do HUD
+        self.font = pygame.font.SysFont("arial", 20, bold=True) 
+
+    # Função que coloca a qtd de pontos e de vidas na tela
+    def draw_hud(self):
+        score_surf = self.font.render(f"Pontos: {self.pacip.score}", True, WHITE)
+        self.screen.blit(score_surf, (10, 10))
+
+        for i in range(self.pacip.lives):
+            pygame.draw.circle(self.screen, (255, 80, 80), (SCREEN_WIDTH - 20 - i * 28, 20), 10)
+
     def run(self):
         # Loop principal do jogo.
         while self.running:
@@ -63,6 +77,12 @@ class Game:
                 #Dispara os pontos e o texto flutuante da moeda coletada
                 coin.on_collide(self.pacip) 
                 self.pacip.score += coin.points
+                # Soma 1 na qtd de hamburguer comido
+                self.pacip.coins_eaten += 1
+            
+            # Verifica se o PacIp precisa ou não receber uma ivda extra. Podia ser no loop, mas aqui fica melhor p economiazr tempo no laço for
+            self.pacip.verificar_vida_extra()  
+
 
             # Verifica se o PacIp encostou em alguma espada.
             key_hits = pygame.sprite.spritecollide(self.pacip, self.keys, True)
@@ -92,6 +112,9 @@ class Game:
             self.coins.draw(self.screen)
             self.keys.draw(self.screen)
             floating_texts.draw(self.screen)
+
+            # Chamada da função do hub
+            self.draw_hud() 
 
             # Mostra o que foi desenhado na tela.
             pygame.display.flip()
