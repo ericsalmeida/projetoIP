@@ -3,10 +3,10 @@ import sys
 from classes.PacIp import PacIp
 from classes.Map import Map
 from classes.Ghost import Ghost
-from classes.Coin import generate_coins, update_coin_collisions, floating_texts
+from classes.Coin import generate_coins, update_coin_collisions
 from classes.Key import create_keys, update_key_collisions
+from classes.FloatingText import floating_texts
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK
-
 
 # Classe principal que controla o jogo inteiro
 class Game:
