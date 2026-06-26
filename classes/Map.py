@@ -1,5 +1,5 @@
 import pygame
-from constants import TILE_SIZE, BLUE
+from constants import TILE_SIZE, BLUE, SCREEN_WIDTH, SCREEN_HEIGHT
 from classes.Coin import Coin
 from classes.Key import Key
 
@@ -26,6 +26,16 @@ class Map:
         ]
         self.walls = []
         self.generate_walls()
+
+        # Traz pro jogo a imagem do chão do mapa
+        self.chao_image = pygame.image.load('assets/images/mapa_chão.png').convert()       
+        # Garante a imagem no tamanho certo
+        self.chao_image = pygame.transform.scale(self.chao_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        # Traz pro jogo a imagem das paredes do mapa
+        self.parede_image = pygame.image.load('assets/images/mapa_parede.png').convert()       
+        # Garante a imagem no tamanho certo
+        self.parede_image = pygame.transform.scale(self.parede_image, (TILE_SIZE, TILE_SIZE))
 
     def generate_walls(self):
         for row_idx, row in enumerate(self.matrix):
@@ -68,6 +78,9 @@ class Map:
         return coins_group, keys_group
 
     def draw(self, screen):
+        # Desenho do chão na tela
+        screen.blit(self.chao_image, (0, 0))
+        
         # Desenho das paredes na tela
         for wall in self.walls:
-            pygame.draw.rect(screen, BLUE, wall)
+            screen.blit(self.parede_image, (wall.x, wall.y))
