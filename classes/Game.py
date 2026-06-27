@@ -32,7 +32,7 @@ class Game:
         # Cria o mapa, o PacIp e um fantasma de teste.
         self.mapa = Map()
         self.pacip = PacIp(x=364, y=324)
-        self.ghost_teste = Ghost(x=364, y=100)
+        self.ghost_teste = Ghost(x=364, y=160)
 
         # a partir do método interno dele.
         self.coins, self.keys = self.mapa.generate_items()
@@ -55,6 +55,7 @@ class Game:
             pygame.draw.circle(self.screen, (255, 80, 80), (SCREEN_WIDTH - 20 - i * 28, 20), 10)
 
     def run(self):
+        tempo_ultimo_dano = 0
         # Loop principal do jogo.
         while self.running:
             # Le tudo que o jogador faz no teclado e na janela.
@@ -70,6 +71,22 @@ class Game:
 
             # Move o fantasma de teste pelo mapa.
             self.ghost_teste.mover(self.mapa.walls)
+
+        ##############################################
+            tempo_atual = pygame.time.get_ticks()
+        
+            if self.pacip.rect.colliderect(self.ghost_teste.rect):
+            # Só tira vida se já tiverem passado 2000 milissegundos (2 segundos) desde o último hit
+                if tempo_atual - tempo_ultimo_dano > 2000:
+                    self.pacip.lives -= 1
+                    tempo_ultimo_dano = tempo_atual # Reseta o cronômetro do dano
+                    
+                    # Condição de Game Over
+                    if self.pacip.lives <= 0:
+                        self.running = False
+
+
+            #########################################
 
             # Verifica se o PacIp encostou em alguma moeda.
             coin_hits = pygame.sprite.spritecollide(self.pacip, self.coins, True)
