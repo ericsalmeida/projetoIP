@@ -11,7 +11,7 @@ BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)       # Cor das paredes
 WHITE = (255, 255, 255)
-
+RED = (255, 0, 0)
 
 # Paleta de Cores de Hora de Aventura (Sanduíche do Jake)
 PAO = (215, 135, 70)          # Marrom claro

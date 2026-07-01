@@ -37,10 +37,11 @@ class Key(pygame.sprite.Sprite):
         self.collected = True
 
     def on_collect(self, pacman):
-        # Quando o PacIp pega a espada, ela some e mostra +50.
+        # Quando o PacIp pega a espada, ela some e libera o fantasma ligado a ela.
+        # Os pontos da espada NÃO entram aqui — só quando o fantasma for comido.
         self.collect()
         floating_texts.add(
-            FloatingText("+50", pacman.rect.centerx, pacman.rect.centery - 15, (255, 80, 255))
+            FloatingText("Fantasma vulneravel!", pacman.rect.centerx, pacman.rect.centery - 15, (255, 80, 255))
         )
 
     def draw(self):
