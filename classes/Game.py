@@ -26,11 +26,16 @@ class Game:
 
         self.mapa = Map()
         self.folha_personagens = SpriteSheet("assets/images/Pacip sprites 1.png")
+        spritesheet_ciano_direita = SpriteSheet("assets/images/Pinguin ciano 22.png")
+        spritesheet_assustados = SpriteSheet("assets/images/Pinguins assustados 1.png")
         self.pacip = PacIp(x=364, y=324, spritesheet=self.folha_personagens)
 
         # Agora o mapa devolve moedas, espadas E os 4 fantasmas
-        self.coins, self.keys, self.ghosts = self.mapa.generate_items()
-
+        self.coins, self.keys, self.ghosts = self.mapa.generate_items(
+        self.folha_personagens, 
+        spritesheet_ciano_direita, 
+        spritesheet_assustados
+        )
         # Grupo das vidas que os fantasmas derrubam no chão
         self.lives_drop = pygame.sprite.Group()
 

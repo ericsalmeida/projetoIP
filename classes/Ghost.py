@@ -3,10 +3,9 @@ import random
 from constants import TILE_SIZE
 
 class Ghost:
-    def __init__(self, x, y, ghost_id, matrix, tamanho=32, velocidade=2, color=(255, 0, 0), raio_patrulha=4):
-        # Cria o rect e centraliza ele no ponto (x, y) — que é o centro do
-        # bloco do mapa. Antes o (x, y) virava o canto superior esquerdo,
-        # fazendo o fantasma nascer meio bloco fora do lugar e preso na parede.
+    # Adicionamos as três spritesheets como parâmetros obrigatórios e mudamos o tamanho para 40
+    def __init__(self, x, y, ghost_id, matrix, spritesheet_main, spritesheet_cyan_right, spritesheet_scared, tamanho=40, velocidade=2, color=(255, 0, 0), raio_patrulha=4):
+        
         self.rect = pygame.Rect(0, 0, tamanho, tamanho)
         self.rect.center = (x, y)
 
@@ -25,21 +24,76 @@ class Ghost:
         self.direction = random.choice(self.directions_list)
         self.state = 'patrulha'
 
-        # Guarda em qual bloco (tile) o fantasma está agora. Usado pra
-        # detectar quando ele realmente atravessa pra um bloco novo
-        # (é isso que evita ele travar tremendo no lugar).
         self.tile_col = self.rect.centerx // TILE_SIZE
         self.tile_row = self.rect.centery // TILE_SIZE
 
-        # Ponto de origem (o bloco onde ele nasceu). O fantasma tende a
-        # rondar perto daqui em vez de vagar pelo mapa inteiro.
         self.home_col = self.tile_col
         self.home_row = self.tile_row
         self.raio_patrulha = raio_patrulha  # em blocos
 
-        self.vulnerable_colors = [(30, 30, 255), (255, 255, 255)]
+        
+        def pegar_e_aumentar(sheet, pos_x, pos_y, largura, altura):
+            # Recorta e força o tamanho para 40x40 (mesmo os assustados que são grandões)
+            pedaco = sheet.recortar(pos_x, pos_y, largura, altura)
+            return pygame.transform.scale(pedaco, (tamanho, tamanho))
 
-    # Coloca o fantasma no estado em que o fantasma pode ser comido pelo jogador
+        # FANTASMAS ASSUSTADOS (Pegando do spritesheet_scared)
+        self.sprites_assustados = {
+            (0, -1): pegar_e_aumentar(spritesheet_scared, 380, 373, 95, 99), # Cima
+            (0, 1):  pegar_e_aumentar(spritesheet_scared, 177, 381, 94, 90), # Baixo
+            (-1, 0): pegar_e_aumentar(spritesheet_scared, 274, 375, 93, 99), # Esquerda
+            (1, 0):  pegar_e_aumentar(spritesheet_scared, 481, 373, 90, 98)  # Direita
+        }
+
+        # FANTASMAS NORMAIS (Mapeados pelo ghost_id)
+        self.sprites_normais = {}
+        
+        # VERMELHO (Pode ser ID 1 ou 'red')
+        if self.ghost_id == 1 or self.ghost_id == 'red':
+            self.sprites_normais = {
+                (0, -1): pegar_e_aumentar(spritesheet_main, 66, 128, 26, 28),
+                (0, 1):  pegar_e_aumentar(spritesheet_main, 94, 128, 29, 28),
+                (-1, 0): pegar_e_aumentar(spritesheet_main, 9, 161, 24, 26),
+                (1, 0):  pegar_e_aumentar(spritesheet_main, 39, 162, 25, 25)
+            }
+        # LARANJA (Pode ser ID 2 ou 'orange')
+        elif self.ghost_id == 2 or self.ghost_id == 'orange':
+            self.sprites_normais = {
+                (0, -1): pegar_e_aumentar(spritesheet_main, 195, 128, 23, 28),
+                (0, 1):  pegar_e_aumentar(spritesheet_main, 223, 128, 23, 28),
+                (-1, 0): pegar_e_aumentar(spritesheet_main, 138, 160, 25, 27),
+                (1, 0):  pegar_e_aumentar(spritesheet_main, 167, 160, 28, 29)
+            }
+        # ROXO (Pode ser ID 3 ou 'purple')
+        elif self.ghost_id == 3 or self.ghost_id == 'purple':
+            self.sprites_normais = {
+                (0, -1): pegar_e_aumentar(spritesheet_main, 65, 194, 27, 28),
+                (0, 1):  pegar_e_aumentar(spritesheet_main, 94, 195, 25, 27),
+                (-1, 0): pegar_e_aumentar(spritesheet_main, 8, 228, 23, 26),
+                (1, 0):  pegar_e_aumentar(spritesheet_main, 37, 224, 26, 27)
+            }
+        # CIANO (Pode ser ID 4 ou 'cyan')
+        elif self.ghost_id == 4 or self.ghost_id == 'cyan':
+            self.sprites_normais = {
+                (0, -1): pegar_e_aumentar(spritesheet_main, 193, 194, 28, 29),
+                (0, 1):  pegar_e_aumentar(spritesheet_main, 221, 194, 28, 28),
+                (-1, 0): pegar_e_aumentar(spritesheet_main, 136, 224, 26, 27),
+                # Atenção: O Ciano pra Direita usa a spritesheet separada!
+                (1, 0):  pegar_e_aumentar(spritesheet_cyan_right, 67, 224, 27, 26) 
+            }
+        else:
+            # Prevenção de erro: Se vier um ID desconhecido, usa o Vermelho como padrão
+            self.sprites_normais = {
+                (0, -1): pegar_e_aumentar(spritesheet_main, 66, 128, 26, 28),
+                (0, 1):  pegar_e_aumentar(spritesheet_main, 94, 128, 29, 28),
+                (-1, 0): pegar_e_aumentar(spritesheet_main, 9, 161, 24, 26),
+                (1, 0):  pegar_e_aumentar(spritesheet_main, 39, 162, 25, 25)
+            }
+
+        # Define a imagem inicial
+        self.image = self.sprites_normais[self.direction]
+
+    # Coloca o fantasma no estado em que pode ser comido
     def tornar_vulneravel(self, pontos):
         self.vulnerable = True
         self.bonus_points = pontos
@@ -49,8 +103,6 @@ class Ghost:
         self.eaten = True
         self.vulnerable = False
 
-    # Descobre quais direções podem ser utilizadas a partir do bloco atual
-    # Apenas posições com valor 0 (caminho livre) são consideradas
     def get_direcoes_validas(self, tile_row, tile_col):
         direcao_oposta = (-self.direction[0], -self.direction[1])
         validas = []
@@ -61,12 +113,10 @@ class Ghost:
 
             dentro_do_mapa = 0 <= nova_row < len(self.matrix) and 0 <= nova_col < len(self.matrix[0])
             if dentro_do_mapa and self.matrix[nova_row][nova_col] == 0:
-                # Evita voltar pelo mesmo caminho, a menos que seja a única opção (beco sem saída)
                 if d != direcao_oposta:
                     validas.append(d)
 
         if not validas:
-            # Beco sem saída: a única saída é voltar
             nova_col = tile_col + direcao_oposta[0]
             nova_row = tile_row + direcao_oposta[1]
             dentro_do_mapa = 0 <= nova_row < len(self.matrix) and 0 <= nova_col < len(self.matrix[0])
@@ -75,8 +125,6 @@ class Ghost:
 
         return validas
 
-    # Escolhe qual direção seguir
-    # O algoritmo favorece movimentos que mantêm o fantasma próximo do ponto onde nasceu
     def escolher_direcao(self, opcoes, tile_row, tile_col):
         if len(opcoes) == 1:
             return opcoes[0]
@@ -92,12 +140,9 @@ class Ghost:
                 nova_distancia = abs(nova_col - self.home_col) + abs(nova_row - self.home_row)
                 if nova_distancia < distancia_atual:
                     mais_perto.append(d)
-            # Só troca pra lista restrita se existir alguma opção que
-            # realmente aproxime; senão (beco sem saída) mantém as normais.
             if mais_perto:
                 candidatos = mais_perto
 
-        # Sorteio ponderado: direções que aproximam mais do home pesam mais.
         pesos = []
         for d in candidatos:
             nova_col = tile_col + d[0]
@@ -108,15 +153,12 @@ class Ghost:
 
         return random.choices(candidatos, weights=pesos, k=1)[0]
 
-    # Move o fantasma pelo mapa.
-    # Sempre que entra em um novo tile ou colide com uma parede, decide uma nova direção.
     def mover(self, walls):
         if self.eaten:
             return
 
         colidiu = False
 
-        # Move no eixo X e trava se bater em parede
         self.rect.x += self.direction[0] * self.speed
         for wall in walls:
             if self.rect.colliderect(wall):
@@ -124,7 +166,6 @@ class Ghost:
                 colidiu = True
                 break
 
-        # Move no eixo Y e trava se bater em parede
         self.rect.y += self.direction[1] * self.speed
         for wall in walls:
             if self.rect.colliderect(wall):
@@ -135,8 +176,6 @@ class Ghost:
         novo_tile_col = self.rect.centerx // TILE_SIZE
         novo_tile_row = self.rect.centery // TILE_SIZE
 
-        # Só decide nova direção quando bate numa parede OU quando de fato
-        # entrou em um bloco diferente do que estava antes.
         entrou_bloco_novo = (novo_tile_col != self.tile_col) or (novo_tile_row != self.tile_row)
 
         if colidiu or entrou_bloco_novo:
@@ -148,15 +187,22 @@ class Ghost:
             if opcoes:
                 self.direction = self.escolher_direcao(opcoes, self.tile_row, self.tile_col)
 
+        # Atualiza a imagem com base na direção atual e se está assustado
+        if self.vulnerable:
+            # Adiciona o efeito piscando (some e aparece) pouco antes de acabar
+            piscando = (pygame.time.get_ticks() // 200) % 2
+            if piscando == 0:
+                self.image = self.sprites_assustados[self.direction]
+            else:
+                # Quando pisca, mostra a cor base original só pra dar um aviso
+                self.image = self.sprites_normais[self.direction] 
+        else:
+            self.image = self.sprites_normais[self.direction]
+
     # Desenha o fantasma na tela
     def desenhar(self, screen):
         if self.eaten:
             return
 
-        if self.vulnerable:
-            piscando = (pygame.time.get_ticks() // 200) % 2
-            cor_atual = self.vulnerable_colors[piscando]
-        else:
-            cor_atual = self.base_color
-
-        pygame.draw.rect(screen, cor_atual, self.rect)
+        # Desenha a imagem (o sprite) em vez do quadrado colorido!
+        screen.blit(self.image, self.rect)

@@ -49,7 +49,7 @@ class Map:
 
 
     # Cria todos os objetos existentes no mapa, ou seja, as moedas, espadas e fantasmas
-    def generate_items(self):
+    def generate_items(self, spritesheet_main, spritesheet_cyan_right, spritesheet_scared):
         coins_group = pygame.sprite.Group()
         keys_group = pygame.sprite.Group()
         ghosts = []
@@ -75,8 +75,19 @@ class Map:
         for ghost_id, (row, col) in enumerate(ghost_positions):
             x = col * TILE_SIZE + TILE_SIZE // 2
             y = row * TILE_SIZE + TILE_SIZE // 2
-            ghosts.append(Ghost(x, y, ghost_id=ghost_id, matrix=self.matrix, color=ghost_colors[ghost_id]))
-
+            
+            # Cria o fantasma e já passa as 3 imagens 
+            novo_fantasma = Ghost(
+                x, 
+                y, 
+                ghost_id + 1, 
+                self.matrix, 
+                spritesheet_main, 
+                spritesheet_cyan_right, 
+                spritesheet_scared, 
+                tamanho=40
+            )
+            ghosts.append(novo_fantasma)
         key_id_counter = 0
         for row_idx, row in enumerate(self.matrix):
             for col_idx, cell in enumerate(row):
