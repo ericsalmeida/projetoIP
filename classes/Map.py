@@ -97,7 +97,7 @@ class Map:
 
                     if (row_idx, col_idx) in key_positions:
                         # o id da espada é igual ao id do fantasma que ela liberta
-                        keys_group.add(Key(x, y, key_id_counter, linked_ghost_id=key_id_counter))
+                        keys_group.add(Key(x, y, key_id_counter, linked_ghost_id=key_id_counter + 1))
                         key_id_counter += 1
                     else:
                         coins_group.add(Coin(x, y))
