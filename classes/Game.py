@@ -5,6 +5,7 @@ from classes.Map import Map
 from classes.FloatingText import floating_texts
 from classes.Key import Key
 from classes.Life import Life
+from classes.Sprites import SpriteSheet
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK, WHITE
 
 class Game:
@@ -24,7 +25,8 @@ class Game:
         self.running = True
 
         self.mapa = Map()
-        self.pacip = PacIp(x=364, y=324)
+        self.folha_personagens = SpriteSheet("assets/images/Pacip sprites 1.png")
+        self.pacip = PacIp(x=364, y=324, spritesheet=self.folha_personagens)
 
         # Agora o mapa devolve moedas, espadas E os 4 fantasmas
         self.coins, self.keys, self.ghosts = self.mapa.generate_items()
